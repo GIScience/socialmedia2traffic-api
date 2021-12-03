@@ -2,6 +2,8 @@
 
 The SM2T RESTful API provides traffic information for OSM features suitable for integration in ORS based on the data published by [UBER movement](https://movement.uber.com/?lang=en-US). In the future, it should also provide traffic information derived from social media data.
 
+The API is currently **under active development** and only provides dummy data.
+
 ## Installation
 
 The SM2T API requires Python3.x and the packages listed in [requirements.txt](./requirements.txt).
