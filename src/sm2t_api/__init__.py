@@ -6,3 +6,4 @@
 __author__ = "Christina Ludwig, GIScience Research Group, Heidelberg University"
 __email__ = "christina.ludwig@uni-heidelberg.de"
 
+from .utils import *

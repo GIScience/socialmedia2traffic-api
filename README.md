@@ -21,6 +21,8 @@ Start the API locally using
 python ./src/sm2t_api/api.py
 ```
 
+Send a GET request to the API by opening [127.0.0.1:5000/traffic/csv?bbox=8.3197,-48.9405,8.4041,49.0511](127.0.0.1:5000/traffic/csv?bbox=8.3197,-48.9405,8.4041,49.0511) in the browser.
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 

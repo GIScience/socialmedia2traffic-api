@@ -1,3 +1,4 @@
 flask
 geopandas
 flask-restful
+pytest
