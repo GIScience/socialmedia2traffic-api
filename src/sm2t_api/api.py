@@ -6,6 +6,7 @@
 __author__ = "Christina Ludwig, GIScience Research Group, Heidelberg University"
 __email__ = "christina.ludwig@uni-heidelberg.de"
 
+import datetime
 import json
 
 from flask import Flask, make_response
@@ -26,11 +27,22 @@ data = pd.DataFrame({"osmId": [1, 2],
                      "speed": [100, 80]})
 
 
-@api.representation('text/csv')
-def output_csv(data, code, headers=None):
-    resp = make_response(data.to_csv(), code)
-    resp.headers.extend(headers or {})
-    return resp
+
+def file_name(bbox):
+    """
+    Parse coordinates and return output file name
+    :return:
+    """
+    coords = [float(x) for x in bbox.split(",")]
+    rounded = [int(round(x * 1e6, 0)) for x in coords]
+    date = datetime.date.today().strftime("%Y%m%d")
+
+    c0 = f"w{rounded[0] * -1}" if rounded[0] < 0 else f"e{rounded[0]}"
+    c2 = f"w{rounded[2] * -1}" if rounded[2] < 0 else f"e{rounded[2]}"
+    c1 = f"s{rounded[1] * -1}" if rounded[1] < 0 else f"n{rounded[1]}"
+    c3 = f"s{rounded[3] * -1}" if rounded[3] < 0 else f"n{rounded[3]}"
+
+    return coords, f"sm2t-{date}-{c0}_{c1}_{c2}_{c3}.csv"
 
 
 class Traffic(Resource):
@@ -45,13 +57,13 @@ class Traffic(Resource):
         parser.add_argument('bbox', type=str, help='Bounding box', required=True)
         args = parser.parse_args()
 
-        bbox = args["bbox"]
-        bbox_list = [float(x) for x in bbox.split(",")]
+        bbox, outfile = file_name(args["bbox"])
+
         response_stream = BytesIO(data.to_csv(index=False).encode())
         return send_file(
             response_stream,
             mimetype="text/csv",
-            download_name=f"traffic_{bbox_list[0]}.csv",
+            download_name=outfile,
         )
 
 

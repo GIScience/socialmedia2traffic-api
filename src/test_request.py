@@ -14,4 +14,3 @@ if __name__ == "__main__":
 
     response = requests.get(BASE + "traffic?bbox=8.3197,48.9405,8.4041,49.0511")
     print(response)
-    print(data)
