@@ -13,6 +13,7 @@ from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with
 import pandas as pd
 from io import BytesIO
 from flask import send_file
+from flask_restful import reqparse
 
 # todo: https://flask-restful.readthedocs.io/en/latest/extending.html#response-formats
 
@@ -34,22 +35,27 @@ def output_csv(data, code, headers=None):
 
 class Traffic(Resource):
 
-    def get(self, bbox):
+    def get(self):
         """
         Get traffic data for specified bounding box
         :param bounds:
         :return:
         """
+        parser = reqparse.RequestParser()
+        parser.add_argument('bbox', type=str, help='Bounding box', required=True)
+        args = parser.parse_args()
+
+        bbox = args["bbox"]
         bbox_list = [float(x) for x in bbox.split(",")]
         response_stream = BytesIO(data.to_csv(index=False).encode())
         return send_file(
             response_stream,
             mimetype="text/csv",
-            download_name="traffic_bbox.csv",
+            download_name=f"traffic_{bbox_list[0]}.csv",
         )
 
 
-api.add_resource(Traffic, "/traffic/<string:bbox>")
+api.add_resource(Traffic, "/traffic")
 
 if __name__ == "__main__":
     app.run(debug=True)
