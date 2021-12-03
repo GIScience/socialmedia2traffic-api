@@ -11,25 +11,24 @@ import pandas as pd
 from io import BytesIO
 from flask import send_file
 from flask_restful import reqparse
-from sm2t_api import parse_bbox
+from utils import parse_bbox
 
 app = Flask(__name__)
 api = Api(app)
 
-data = pd.DataFrame({"osmId": [1, 2],
-                     "speed": [100, 80]})
+data = pd.DataFrame({"osmId": [1, 2], "speed": [100, 80]})
 
 
 class Traffic(Resource):
+    """Resource provides traffic information"""
 
     def get(self):
         """
         Get traffic data for specified bounding box
-        :param bounds:
         :return:
         """
         parser = reqparse.RequestParser()
-        parser.add_argument('bbox', type=str, help='Bounding box', required=True)
+        parser.add_argument("bbox", type=str, help="Bounding box", required=True)
         args = parser.parse_args()
 
         bbox, outfile = parse_bbox(args["bbox"])
