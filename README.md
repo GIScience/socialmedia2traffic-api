@@ -1,6 +1,6 @@
-# SM2T API
+# Social Media 2 Traffic API
 
-The SM2T RESTful API provides traffic information for OSM features suitable for integration in ORS based on the data published by [UBER movement](https://movement.uber.com/?lang=en-US). In the future, it should also provide traffic information derived from social media data.
+The [SocialMedia2Traffic](https://heigit.org/de/new-mfund-project-start-of-socialmedia2traffic-derivation-of-traffic-information-from-social-media-data-2/) (SM2T) RESTful API provides traffic information for OSM features suitable for integration in ORS based on the data published by [UBER movement](https://movement.uber.com/?lang=en-US). In the future, it should also provide traffic information derived from social media data.
 
 The API is currently **under active development** and only provides dummy data.
 
