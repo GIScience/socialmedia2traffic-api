@@ -1,0 +1,20 @@
+
+[tool.poetry]
+name = "sm2t_api"
+version = "0.1.0"
+description = "API serving traffic information for OSM highways"
+authors = ["Christina Ludwig <christina.ludwig@uni-heidelberg.de>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Flask = "^2.0"
+geopandas = "^0.9"
+Flask-RESTful = "^0.3"
+psycopg2 = "^2.9"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

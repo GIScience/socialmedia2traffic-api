@@ -16,7 +16,7 @@ from utils import parse_bbox
 app = Flask(__name__)
 api = Api(app)
 
-data = pd.DataFrame({"osmId": [1, 2], "speed": [100, 80]})
+dummy_data = pd.DataFrame({"osmId": [1, 2], "speed": [100, 80]})
 
 
 class Traffic(Resource):
@@ -33,7 +33,10 @@ class Traffic(Resource):
 
         bbox, outfile = parse_bbox(args["bbox"])
 
-        response_stream = BytesIO(data.to_csv(index=False).encode())
+        # Query data from database within bounding box
+
+
+        response_stream = BytesIO(dummy_data.to_csv(index=False).encode())
         return send_file(
             response_stream,
             mimetype="text/csv",

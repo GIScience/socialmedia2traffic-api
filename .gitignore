@@ -1,4 +1,6 @@
 env
 .idea
-__pychache__
+__pycache__
 .DS_Store
+.pytest_cache
+database.ini
