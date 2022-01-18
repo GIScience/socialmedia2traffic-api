@@ -35,7 +35,6 @@ class Traffic(Resource):
 
         # Query data from database within bounding box
 
-
         response_stream = BytesIO(dummy_data.to_csv(index=False).encode())
         return send_file(
             response_stream,
