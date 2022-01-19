@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""__description__"""
+"""Fill database with highway and speed data"""
 
 __author__ = "Christina Ludwig, GIScience Research Group, Heidelberg University"
 __email__ = "christina.ludwig@uni-heidelberg.de"
 
 from pathlib import Path
-from sm2t.database import create_speed_table, import_highways, import_speed_data, open_connection
+import subprocess
+from sm2t.database import open_connection, execute_query, create_speed_table, import_highways, import_speed_data
+
+import logging
+import logging.config
+logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
 
 
 def import_cities(data_dir):
@@ -18,22 +23,20 @@ def import_cities(data_dir):
 
     for city in city_dirs:
         city_name = city.stem
-        print(f"Importing highways for {city_name}")
+        logging.info(f"Importing highways for {city_name}")
         try:
             import_highways(city / "edges.shp", conn)
         except Exception as e:
-            print(e)
-        print(f"Importing speed for {city_name}")
+            logging.info(e)
+        logging.info(f"Importing speed for {city_name}")
         try:
             import_speed_data(city / "speed.csv", conn)
         except Exception as e:
-            print(e)
-
-    conn.close()
+            logging.info(e)
 
 
 if __name__ == "__main__":
     conn, message = open_connection()
-    print(message)
-
-    import_cities("../../data")
+    logging.info(message)
+    import_cities("../data")
+    conn.close()

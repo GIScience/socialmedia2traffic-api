@@ -8,9 +8,11 @@ __email__ = "christina.ludwig@uni-heidelberg.de"
 from pathlib import Path
 
 import psycopg2
-from config import config
+from sm2t.config import config
 import geopandas as gpd
 import subprocess
+import pandas as pd
+import logging
 
 # from dotenv import load_dotenv, find_dotenv
 
@@ -19,33 +21,65 @@ import subprocess
 # load_dotenv(find_dotenv())
 
 
-
-def open_connection():
+def open_connection(filename):
     """ Connect to the PostgreSQL database server """
     conn = None
     try:
         # read connection parameters
-        params = config()
+        params = config(filename)
 
         # connect to the PostgreSQL server
-        print("Connecting to the PostgreSQL database...")
+        logging.info("Connecting to the PostgreSQL database...")
         conn = psycopg2.connect(**params)
 
         # create a cursor
         cur = conn.cursor()
 
         # execute a statement
-        print("PostgreSQL database version:")
+        logging.info("PostgreSQL database version:")
         cur.execute("SELECT version()")
 
         # display the PostgreSQL database server version
         db_version = cur.fetchone()
-        print(db_version)
+        logging.info(db_version)
 
     except (Exception, psycopg2.DatabaseError) as error:
+        logging.critical(error)
         return False, error
 
     return conn, "Database connection working."
+
+
+def execute_query(connection, query):
+    # connection.autocommit = True
+    cursor = connection.cursor()
+    try:
+        cursor.execute(query)
+        connection.commit()  # <-- ADD THIS LINE
+        logging.info("Query executed successfully")
+    except psycopg2.OperationalError as e:
+        logging.critical(f"The error '{e}' occurred")
+        connection.rollback()
+    except psycopg2.errors.InFailedSqlTransaction as e:
+        logging.critical(e)
+        connection.rollback()
+
+
+
+def create_speed_table(conn):
+    """Create tables"""
+    create_speed_table = """
+    CREATE TABLE IF NOT EXISTS speed (
+      id SERIAL PRIMARY KEY,
+      osm_way_id integer,
+      osm_start_node_id bigint,
+      osm_end_node_id bigint,
+      hour smallint,
+      speed real,
+      fid integer
+    );
+    """
+    execute_query(conn, create_speed_table)
 
 
 def import_highways(file, conn):
@@ -57,7 +91,7 @@ def import_highways(file, conn):
     assert Path(file).exists(), f"{file} does not exist"
     filename = Path(file).stem
     PG = f"PG:host={conn.info.host} user={conn.info.user} password={conn.info.password} dbname={conn.info.dbname}"
-    sql = f"SELECT u AS osm_start_node_id, v AS osm_end_node_id, osmid AS osm_way_id FROM {filename}"
+    sql = f"SELECT u AS osm_start_node_id, v AS osm_end_node_id, osmid AS osm_way_id, fid FROM {filename}"
     cmd = [
         "ogr2ogr",
         "-f",
@@ -78,6 +112,19 @@ def import_highways(file, conn):
     return cmd, success
 
 
+def import_speed_data(file, conn):
+    """Import speed data"""
+    assert Path(file).exists(), f"{file} does not exist"
+    docker_file_path = Path("/data") / file.parents[0].stem / file.name
+    import_csv_query = f"""
+    COPY speed(osm_way_id, osm_start_node_id, osm_end_node_id, hour, speed, fid)
+        FROM '{docker_file_path}'
+        DELIMITER ','
+        CSV HEADER;
+    """
+    execute_query(conn, import_csv_query)
+
+
 def load_highways(bbox: tuple, conn):
     """Loads highways within bounding box from database"""
     bbox_str = ", ".join([str(x) for x in bbox])
@@ -86,83 +133,49 @@ def load_highways(bbox: tuple, conn):
     return highways
 
 
-def execute_query(connection, query):
-    # connection.autocommit = True
-    cursor = connection.cursor()
-    try:
-        cursor.execute(query)
-        connection.commit()  # <-- ADD THIS LINE
-        print("Query executed successfully")
-    except psycopg2.OperationalError as e:
-        print(f"The error '{e}' occurred")
-        connection.rollback()
-    except psycopg2.errors.InFailedSqlTransaction as e:
-        print(e)
-        connection.rollback()
-
-
-def create_speed_table(conn):
-    """Create tables"""
-    create_speed_table = """
-    CREATE TABLE IF NOT EXISTS speed (
-      id SERIAL PRIMARY KEY,
-      osm_way integer,
-      start_node bigint,
-      end_node bigint,
-      hour smallint,
-      speed real
-    );
+def load_speed_by_bbox(bbox, conn):
+    """Load speed data of specified bounding box"""
+    bbox_str = ", ".join([str(x) for x in bbox])
+    query = f"""
+        WITH selection AS (SELECT fid
+        FROM highways
+        WHERE highways.geom && ST_MakeEnvelope({bbox_str}, 4326)) 
+        SELECT osm_way_id, osm_start_node_id, osm_end_node_id, hour, speed
+        FROM speed
+        WHERE speed.fid IN (SELECT fid FROM selection);
     """
-    execute_query(conn, create_speed_table)
+    df = pd.read_sql_query(query, con=conn)
+    return df
 
-
-def import_speed_data(file, conn):
-    """Import speed data"""
-    assert Path(file).exists(), f"{file} does not exist"
-    docker_file_path = Path("/data") / file.parents[0].stem / file.name
-    import_csv_query = f"""
-    COPY speed(osm_way, start_node, end_node, speed, hour)
-        FROM '{docker_file_path}'
-        DELIMITER ','
-        CSV HEADER;
-    """
-    execute_query(conn, import_csv_query)
-
-
-def import_cities(data_dir):
-    """Import data from each city"""
-    data_dir = Path(data_dir)
-    city_dirs = data_dir.iterdir()
-
-    create_speed_table(conn)
-
-    for city in city_dirs:
-        city_name = city.stem
-        print(f"Importing highways for {city_name}")
-        try:
-            import_highways(city / "edges.shp", conn)
-        except Exception as e:
-            print(e)
-        print(f"Importing speed for {city_name}")
-        try:
-            import_speed_data(city / "speed.csv", conn)
-        except Exception as e:
-            print(e)
-
-    conn.close()
 
 
 if __name__ == "__main__":
     conn, message = open_connection()
     print(message)
 
-    #berlin_network_file = "/Users/chludwig/Development/sm2t/sm2t_centrality/data/extracted/berlin/centrality_fmm/temp/network/edges.shp"
-    #bbox = (13.3472, 52.499, 13.4117, 52.5304)
+    berlin_network_file = "/Users/chludwig/Development/sm2t/sm2t_api/data/berlin/edges.shp"
+    bbox = (13.3472, 52.499, 13.4117, 52.5304)
 
-    #berlin_file = "../../data/speed_berlin.csv"
-    #speed = pd.read_csv(berlin_file)
-    #speed.drop("Unnamed: 0", axis=1, inplace=True)
-    #speed.to_csv(berlin_file, index=False)
+    berlin_highways = gpd.read_file(berlin_network_file)
+    berlin_highways = berlin_highways.rename(columns={"u": "osm_start_node_id",
+                                        "v": "osm_end_node_id",
+                                        "osmid": "osm_way_id"})
+    berlin_highways["fid"] = 1
+    berlin_highways = berlin_highways.rename(columns={"osm_start_": "u" ,
+                                        "osm_end_no": "v",
+                                        "osm_way_id": "osmid"})
+    berlin_highways.to_file(berlin_network_file)
+
+    berlin_file = "/Users/chludwig/Development/sm2t/sm2t_api/data/berlin/speed.csv"
+    speed = pd.read_csv(berlin_file)
+    speed["fid"] = 1
+    speed.drop("id", axis=1, inplace=True)
+    speed.set_index(['osm_way_id', 'osm_start_node_id', 'osm_end_node_id'], inplace=True)
+    berlin_highways.set_index(['osm_way_id', 'osm_start_node_id', 'osm_end_node_id'], inplace=True)
+
+    speed_test = speed.join(berlin_highways, how="inner")[['hour', 'speed', 'id']]
+
+    speed.to_csv(berlin_file, index=False)
 
     #sql = "ALTER TABLE highways " "ALTER COLUMN osm_way TYPE INTEGER;"
     #execute_query(conn, sql)

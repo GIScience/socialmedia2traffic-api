@@ -7,9 +7,10 @@ __email__ = "christina.ludwig@uni-heidelberg.de"
 
 from database import (
     open_connection,
-    import_highways,
     load_highways,
+    load_speed_by_bbox,
     import_speed_data,
+    import_highways
 )
 import pandas as pd
 
@@ -45,6 +46,14 @@ def test_load_highway_data():
 
 def test_load_speed_data():
     """Tests whether speed data can be loaded"""
-    conn, message = open_connection()
+    conn, message = open_connection(filename="../../../database.ini")
     df = pd.read_sql_query('select * from "speed"', con=conn)
     assert len(df) > 0
+
+
+def test_load_speed_by_bbox():
+    """Tests whether speed data can be loaded"""
+    bbox = (13.3472, 52.499, 13.4117, 52.5304)
+    conn, message = open_connection(filename="../../../database.ini")
+    df = load_speed_by_bbox(bbox, conn)
+    assert len(df) == 120
