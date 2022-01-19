@@ -2,3 +2,4 @@ flask
 geopandas
 flask-restful
 pytest
+psycopg2
