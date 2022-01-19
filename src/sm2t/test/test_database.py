@@ -5,7 +5,7 @@
 __author__ = "Christina Ludwig, GIScience Research Group, Heidelberg University"
 __email__ = "christina.ludwig@uni-heidelberg.de"
 
-from processing import (
+from database import (
     open_connection,
     import_highways,
     load_highways,

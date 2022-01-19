@@ -19,6 +19,7 @@ import subprocess
 # load_dotenv(find_dotenv())
 
 
+
 def open_connection():
     """ Connect to the PostgreSQL database server """
     conn = None
@@ -53,6 +54,7 @@ def import_highways(file, conn):
     :param data_dir:
     :return:
     """
+    assert Path(file).exists(), f"{file} does not exist"
     filename = Path(file).stem
     PG = f"PG:host={conn.info.host} user={conn.info.user} password={conn.info.password} dbname={conn.info.dbname}"
     sql = f"SELECT u AS osm_start_node_id, v AS osm_end_node_id, osmid AS osm_way_id FROM {filename}"
@@ -99,10 +101,10 @@ def execute_query(connection, query):
         connection.rollback()
 
 
-def create_speed_table():
+def create_speed_table(conn):
     """Create tables"""
     create_speed_table = """
-    CREATE TABLE speed (
+    CREATE TABLE IF NOT EXISTS speed (
       id SERIAL PRIMARY KEY,
       osm_way integer,
       start_node bigint,
@@ -116,26 +118,52 @@ def create_speed_table():
 
 def import_speed_data(file, conn):
     """Import speed data"""
+    assert Path(file).exists(), f"{file} does not exist"
+    docker_file_path = Path("/data") / file.parents[0].stem / file.name
     import_csv_query = f"""
     COPY speed(osm_way, start_node, end_node, speed, hour)
-        FROM '{file}'
+        FROM '{docker_file_path}'
         DELIMITER ','
         CSV HEADER;
     """
     execute_query(conn, import_csv_query)
 
 
+def import_cities(data_dir):
+    """Import data from each city"""
+    data_dir = Path(data_dir)
+    city_dirs = data_dir.iterdir()
+
+    create_speed_table(conn)
+
+    for city in city_dirs:
+        city_name = city.stem
+        print(f"Importing highways for {city_name}")
+        try:
+            import_highways(city / "edges.shp", conn)
+        except Exception as e:
+            print(e)
+        print(f"Importing speed for {city_name}")
+        try:
+            import_speed_data(city / "speed.csv", conn)
+        except Exception as e:
+            print(e)
+
+    conn.close()
+
+
 if __name__ == "__main__":
     conn, message = open_connection()
     print(message)
 
-    berlin_network_file = "/Users/chludwig/Development/sm2t/sm2t_centrality/data/extracted/berlin/centrality_fmm/temp/network/edges.shp"
-    bbox = (13.3472, 52.499, 13.4117, 52.5304)
+    #berlin_network_file = "/Users/chludwig/Development/sm2t/sm2t_centrality/data/extracted/berlin/centrality_fmm/temp/network/edges.shp"
+    #bbox = (13.3472, 52.499, 13.4117, 52.5304)
 
-    berlin_file = "../../data/speed_berlin.csv"
-    speed = pd.read_csv(berlin_file)
-    speed.drop("Unnamed: 0", axis=1, inplace=True)
-    speed.to_csv(berlin_file, index=False)
+    #berlin_file = "../../data/speed_berlin.csv"
+    #speed = pd.read_csv(berlin_file)
+    #speed.drop("Unnamed: 0", axis=1, inplace=True)
+    #speed.to_csv(berlin_file, index=False)
 
-    sql = "ALTER TABLE highways " "ALTER COLUMN osm_way TYPE INTEGER;"
-    execute_query(conn, sql)
+    #sql = "ALTER TABLE highways " "ALTER COLUMN osm_way TYPE INTEGER;"
+    #execute_query(conn, sql)
+    import_cities("../../data")
