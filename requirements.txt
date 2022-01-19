@@ -1,5 +1,6 @@
 flask
-geopandas
 flask-restful
-pytest
+geopandas
 psycopg2
+sqlalchemy
+geoalchemy2

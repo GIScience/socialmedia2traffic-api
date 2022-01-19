@@ -20,3 +20,6 @@ def config(filename="../database.ini", section="postgresql"):
         )
 
     return db
+
+def create_engine():
+    pass

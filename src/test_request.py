@@ -13,6 +13,6 @@ import json
 if __name__ == "__main__":
     BASE = "http://127.0.0.1:5000/"
 
-    response = requests.get(BASE + "traffic/csv/?bbox=13.3472,52.499,13.4117,52.5304")
+    response = requests.get(BASE + "traffic/csv?bbox=13.3472,52.499,13.4117,52.5304")
     print(response)
     print(response.content)

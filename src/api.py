@@ -18,8 +18,6 @@ from sm2t.database import load_speed_by_bbox, open_connection
 app = Flask(__name__)
 api = Api(app)
 
-#dummy_data = pd.DataFrame({"osmId": [1, 2], "speed": [100, 80]})
-
 import logging
 #import logging.config
 #logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
@@ -40,7 +38,7 @@ class Traffic(Resource):
         bbox, outfile = parse_bbox(args["bbox"])
 
         # Query data from database within bounding box
-        conn, message = open_connection("../database.ini")
+        conn, message = open_connection("./database.ini")
         logging.info(message)
         data = load_speed_by_bbox(bbox, conn)
         conn.close()

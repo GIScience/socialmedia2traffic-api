@@ -6,8 +6,7 @@ __author__ = "Christina Ludwig, GIScience Research Group, Heidelberg University"
 __email__ = "christina.ludwig@uni-heidelberg.de"
 
 from pathlib import Path
-import subprocess
-from sm2t.database import open_connection, execute_query, create_speed_table, import_highways, import_speed_data
+from sm2t.database import open_connection, create_speed_table, import_highways, import_speed_data, create_highways_table
 
 import logging
 import logging.config
@@ -20,6 +19,7 @@ def import_cities(data_dir):
     city_dirs = data_dir.iterdir()
 
     create_speed_table(conn)
+    create_highways_table(conn)
 
     for city in city_dirs:
         city_name = city.stem
@@ -36,7 +36,7 @@ def import_cities(data_dir):
 
 
 if __name__ == "__main__":
-    conn, message = open_connection()
+    conn, message = open_connection("./database.ini")
     logging.info(message)
-    import_cities("../data")
+    import_cities("/data")
     conn.close()

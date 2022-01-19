@@ -8,17 +8,26 @@ __email__ = "christina.ludwig@uni-heidelberg.de"
 from pathlib import Path
 
 import psycopg2
+from geoalchemy2 import Geometry
+
 from sm2t.config import config
 import geopandas as gpd
 import subprocess
 import pandas as pd
 import logging
+from sqlalchemy import create_engine
 
 # from dotenv import load_dotenv, find_dotenv
 
 # Load settings from ./.env file
 # load_dotenv("../../.env", verbose=True)
 # load_dotenv(find_dotenv())
+
+USER="postgres"
+PASSWORD="postgres"
+DATABASE="postgres"
+PORT=5432
+HOST="db"
 
 
 def open_connection(filename):
@@ -68,7 +77,7 @@ def execute_query(connection, query):
 
 def create_speed_table(conn):
     """Create tables"""
-    create_speed_table = """
+    query = """
     CREATE TABLE IF NOT EXISTS speed (
       id SERIAL PRIMARY KEY,
       osm_way_id integer,
@@ -79,7 +88,22 @@ def create_speed_table(conn):
       fid integer
     );
     """
-    execute_query(conn, create_speed_table)
+    execute_query(conn, query)
+
+
+def create_highways_table(conn):
+    """Create tables"""
+    query = """
+    CREATE TABLE IF NOT EXISTS highways (
+      id SERIAL PRIMARY KEY,
+      fid integer,
+      osm_way_id integer,
+      osm_start_node_id bigint,
+      osm_end_node_id bigint,
+      geometry geometry(LINESTRING, 4326)
+    );
+    """
+    execute_query(conn, query)
 
 
 def import_highways(file, conn):
@@ -89,7 +113,19 @@ def import_highways(file, conn):
     :return:
     """
     assert Path(file).exists(), f"{file} does not exist"
-    filename = Path(file).stem
+    engine = create_engine(f"postgresql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}")
+    data = gpd.read_file(file)
+    data = data.rename(columns={"u": "osm_start_node_id",
+                                "v": "osm_end_node_id",
+                                "osmid": "osm_way_id"})
+    data = data[["fid", "osm_way_id", "osm_end_node_id", "osm_start_node_id", "geometry"]]
+    data.to_postgis(name="highways",
+                   con=engine,
+                   if_exists="append",
+                   index=False,
+                   dtype={'geometry': Geometry('LINESTRING', srid='4326')})
+
+    """
     PG = f"PG:host={conn.info.host} user={conn.info.user} password={conn.info.password} dbname={conn.info.dbname}"
     sql = f"SELECT u AS osm_start_node_id, v AS osm_end_node_id, osmid AS osm_way_id, fid FROM {filename}"
     cmd = [
@@ -109,7 +145,9 @@ def import_highways(file, conn):
         success = subprocess.check_call(cmd)
     except subprocess.CalledProcessError as error:
         return cmd, error
-    return cmd, success
+    """
+
+    return None, True
 
 
 def import_speed_data(file, conn):
@@ -139,7 +177,7 @@ def load_speed_by_bbox(bbox, conn):
     query = f"""
         WITH selection AS (SELECT fid
         FROM highways
-        WHERE highways.geom && ST_MakeEnvelope({bbox_str}, 4326)) 
+        WHERE highways.geometry && ST_MakeEnvelope({bbox_str}, 4326)) 
         SELECT osm_way_id, osm_start_node_id, osm_end_node_id, hour, speed
         FROM speed
         WHERE speed.fid IN (SELECT fid FROM selection);

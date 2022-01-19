@@ -11,6 +11,8 @@ Flask = "^2.0"
 geopandas = "^0.9"
 Flask-RESTful = "^0.3"
 psycopg2 = "^2.9"
+SQLAlchemy = "^1.4.29"
+GeoAlchemy2 = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
