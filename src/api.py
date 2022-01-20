@@ -15,12 +15,11 @@ from flask_restful import reqparse
 from sm2t.utils import parse_bbox
 from sm2t.database import load_speed_by_bbox, open_connection
 
+import logging
+
+
 app = Flask(__name__)
 api = Api(app)
-
-import logging
-#import logging.config
-#logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
 
 
 class Traffic(Resource):
@@ -38,7 +37,7 @@ class Traffic(Resource):
         bbox, outfile = parse_bbox(args["bbox"])
 
         # Query data from database within bounding box
-        conn, message = open_connection("./database.ini")
+        conn, message = open_connection()
         logging.info(message)
         data = load_speed_by_bbox(bbox, conn)
         conn.close()
