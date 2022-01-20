@@ -1,8 +1,10 @@
-# Social Media 2 Traffic API
+# SocialMedia2Traffic API
 
 The [SocialMedia2Traffic](https://heigit.org/de/new-mfund-project-start-of-socialmedia2traffic-derivation-of-traffic-information-from-social-media-data-2/) (SM2T) API provides **hourly traffic speed data** for individual OSM road features suitable for integration in [openrouteservice](https://openrouteservice.org).
 
-At the moment, only data for Berlin is available.
+The traffic speed was modelled using geocoded Twitter data and OpenStreetMap data using machine learning and [UBER movement data](https://movement.uber.com/?lang=en-US) as reference.
+
+**Available cities:** Berlin (more will follow)
 
 ## Usage
 
@@ -41,13 +43,14 @@ docker compose up
 ```
 
 ## Contributing
-If you encounter problems or bugs, please open an [issue](https://github.com/GIScience/socialmedia2traffic-api/issues).
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Also please make sure to update tests as appropriate.
+If you encounter problems or bugs, please open an [issue](https://github.com/GIScience/socialmedia2traffic-api/issues). Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Also please make sure to update tests as appropriate.
 
 ## Funding
 
-This project was funded by the German Federal Ministry of Transport and Digital Infrastructure (BMVI) in the context of the research initiative mFUND.
+This project was funded by the [German Federal Ministry for Digital and Transport (BMDV)](https://www.bmvi.de/EN/Home/home.html) in the context of the research initiative [mFUND](https://www.bmvi.de/EN/Topics/Digital-Matters/mFund/mFund.html).
+
+Project term: 02/2021 - 01/2021
 
 <p float="left">
 <img src="./img/bmdv.png" height=170 align="middle" />
