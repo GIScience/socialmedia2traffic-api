@@ -11,7 +11,7 @@ Traffic data can be queried from [https://sm2t.heigit.org/traffic/csv](https://s
 **Example Query**
 
 ```
-curl http://localhost:5000/traffic/csv?bbox=13.3472,52.499,13.4117,42.5304
+curl http://sm2t.heigit.org/traffic/csv?bbox=13.3472,52.499,13.4117,42.5304
 ```
 
 The response is a **zip compressed CSV file** containing **hourly traffic speed in km/h** for individual OSM highway segments, e.g.
@@ -27,7 +27,7 @@ osm_way_id,osm_start_node_id,osm_end_node_id,hour,speed
 4615004,12614644,29266235,10,29.0
 ```
 
-The first three columns denote are **official OSM IDs**, so the respective OSM objects can be viewed on [https://www.openstreetmap.org](https://www.openstreetmap.org), e.g.
+The first three columns denote **official OSM IDs**, so the respective OSM objects can be viewed on [https://www.openstreetmap.org](https://www.openstreetmap.org), e.g.
 - [https://www.openstreetmap.org/way/4615004](https://openstreetmap.org/way/4615004)
 - [https://www.openstreetmap.org/node/12614644](https://www.openstreetmap.org/node/12614644).
 
@@ -49,5 +49,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 This project was funded by the German Federal Ministry of Transport and Digital Infrastructure (BMVI) in the context of the research initiative mFUND.
 
-<img src="./img/bmdv.png" width=200>
-<img src="./img/mfund.jpg" width=200>
+<p float="left">
+<img src="./img/bmdv.png" width=200/>
+<img src="./img/mfund.jpg" width=200/>
+</p>
