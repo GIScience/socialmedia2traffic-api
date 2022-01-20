@@ -50,6 +50,6 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 This project was funded by the German Federal Ministry of Transport and Digital Infrastructure (BMVI) in the context of the research initiative mFUND.
 
 <p float="left">
-<img src="./img/bmdv.png" width=200/>
-<img src="./img/mfund.jpg" width=200/>
+<img src="./img/bmdv.png" height=170 align="middle" />
+<img src="./img/mfund.jpg" height=170 align="middle" />
 </p>
