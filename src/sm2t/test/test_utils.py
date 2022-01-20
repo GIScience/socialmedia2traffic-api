@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""__description__
-"""
+"""Test utility functions"""
 
-__author__ = "Christina Ludwig, GIScience Research Group, Heidelberg University"
-__email__ = "christina.ludwig@uni-heidelberg.de"
-
-from sm2t_api import parse_bbox
+from sm2t.utils import parse_bbox
 import datetime
-
 
 
 def test_parse_bbox():

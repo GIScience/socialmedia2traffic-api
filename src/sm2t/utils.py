@@ -2,16 +2,14 @@
 # -*- coding: utf-8 -*-
 """Utility functions"""
 
-__author__ = "Christina Ludwig, GIScience Research Group, Heidelberg University"
-__email__ = "christina.ludwig@uni-heidelberg.de"
-
 import datetime
 
 
-def parse_bbox(bbox):
+def parse_bbox(bbox: str):
     """
     Parse coordinates and return output file name
-    :return:
+    :param bbox: Bounding box as str min_lon,min_lat,max_lon,max_lat
+    :return: List of coordinates, filename with bounding box
     """
     coords = [float(x) for x in bbox.split(",")]
     rounded = [int(round(x * 1e6, 0)) for x in coords]

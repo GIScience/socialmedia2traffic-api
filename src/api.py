@@ -2,12 +2,8 @@
 # -*- coding: utf-8 -*-
 """SM2T API"""
 
-__author__ = "Christina Ludwig, GIScience Research Group, Heidelberg University"
-__email__ = "christina.ludwig@uni-heidelberg.de"
-
 from flask import Flask
 from flask_restful import Api, Resource
-import pandas as pd
 from io import BytesIO
 from flask import send_file
 from flask_restful import reqparse

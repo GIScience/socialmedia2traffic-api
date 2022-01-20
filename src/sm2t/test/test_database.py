@@ -1,38 +1,33 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""__description__"""
+"""Test database functions"""
 
-__author__ = "Christina Ludwig, GIScience Research Group, Heidelberg University"
-__email__ = "christina.ludwig@uni-heidelberg.de"
 
-from database import (
+from sm2t.database import (
     open_connection,
     load_highways,
     load_speed_by_bbox,
-    import_speed_data,
-    import_highways
 )
+from populate_database import import_speed_data, import_highways
 import pandas as pd
 
 
 def test_import_highways():
     """Tests whether highway data is imported into database"""
     conn, message = open_connection()
-    test_geometry_file = (
-        "/Users/chludwig/Development/sm2t/sm2t_api/data/test_geometries_berlin.shp"
-    )
+    test_geometry_file = "../data/berlin/edges.shp"
     cmd, success = import_highways(test_geometry_file, conn)
     conn.close()
-    assert success == True
+    assert success is True
 
 
 def test_import_speed_data():
     """Tests whether speed data is imported into database"""
     conn, message = open_connection()
-    test_speed_file = "/Users/chludwig/Development/sm2t/sm2t_api/data/speed_berlin.shp"
+    test_speed_file = "../data/berlin/speed.csv"
     cmd, success = import_speed_data(test_speed_file, conn)
     conn.close()
-    assert success == True
+    assert success is True
 
 
 def test_load_highway_data():
@@ -46,7 +41,7 @@ def test_load_highway_data():
 
 def test_load_speed_data():
     """Tests whether speed data can be loaded"""
-    conn, message = open_connection(filename="../../../database.ini")
+    conn, message = open_connection()
     df = pd.read_sql_query('select * from "speed"', con=conn)
     assert len(df) > 0
 
@@ -54,6 +49,6 @@ def test_load_speed_data():
 def test_load_speed_by_bbox():
     """Tests whether speed data can be loaded"""
     bbox = (13.3472, 52.499, 13.4117, 52.5304)
-    conn, message = open_connection(filename="../../../database.ini")
+    conn, message = open_connection()
     df = load_speed_by_bbox(bbox, conn)
     assert len(df) == 120

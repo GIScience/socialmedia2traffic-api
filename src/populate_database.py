@@ -2,14 +2,10 @@
 # -*- coding: utf-8 -*-
 """Fill database with highway and speed data"""
 
-__author__ = "Christina Ludwig, GIScience Research Group, Heidelberg University"
-__email__ = "christina.ludwig@uni-heidelberg.de"
-
 from pathlib import Path
 import geopandas as gpd
 from sm2t.database import open_connection, execute_query, open_engine
 from geoalchemy2 import Geometry
-import os
 import logging
 
 
@@ -54,15 +50,23 @@ def import_highways(file, conn):
     engine = open_engine()
 
     data = gpd.read_file(file)
-    data = data.rename(columns={"u": "osm_start_node_id",
-                                "v": "osm_end_node_id",
-                                "osmid": "osm_way_id"})
-    data = data[["fid", "osm_way_id", "osm_end_node_id", "osm_start_node_id", "geometry"]]
-    data.to_postgis(name="highways",
-                   con=engine,
-                   if_exists="append",
-                   index=False,
-                   dtype={'geometry': Geometry('LINESTRING', srid='4326')})
+    data = data.rename(
+        columns={
+            "u": "osm_start_node_id",
+            "v": "osm_end_node_id",
+            "osmid": "osm_way_id",
+        }
+    )
+    data = data[
+        ["fid", "osm_way_id", "osm_end_node_id", "osm_start_node_id", "geometry"]
+    ]
+    data.to_postgis(
+        name="highways",
+        con=engine,
+        if_exists="append",
+        index=False,
+        dtype={"geometry": Geometry("LINESTRING", srid="4326")},
+    )
 
     """
     PG = f"PG:host={conn.info.host} user={conn.info.user} password={conn.info.password} dbname={conn.info.dbname}"
