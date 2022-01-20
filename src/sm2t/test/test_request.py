@@ -7,7 +7,6 @@ __author__ = "Christina Ludwig, GIScience Research Group, Heidelberg University"
 __email__ = "christina.ludwig@uni-heidelberg.de"
 
 import requests
-import json
 
 
 if __name__ == "__main__":
