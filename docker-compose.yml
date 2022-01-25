@@ -38,6 +38,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: curl --fail -s http://localhost:5000/ || exit 1
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
 
   nginx:
     build: ./nginx
@@ -46,7 +51,8 @@ services:
     ports:
       - "81:80"
     depends_on:
-      - api
+      - api:
+          condition: service_healthy
 
 volumes:
   db-data:
