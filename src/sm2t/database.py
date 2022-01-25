@@ -13,7 +13,7 @@ from sqlalchemy import create_engine
 def open_engine():
     """Opens a sqlalchemy engine"""
     return create_engine(
-        f"postgresql://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}@{os.environ['HOST']}:{os.environ['PORT']}/{os.environ['POSTGRES_DB']}"
+        f"postgresql://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}@{os.environ['HOST']}:{os.environ['POSTGRES_PORT']}/{os.environ['POSTGRES_DB']}"
     )
 
 
@@ -25,7 +25,7 @@ def open_connection():
         logging.info("Connecting to the PostgreSQL database...")
         conn = psycopg2.connect(
             host=os.environ["HOST"],
-            port=os.environ["PORT"],
+            port=os.environ["POSTGRES_PORT"],
             dbname=os.environ["POSTGRES_DB"],
             user=os.environ["POSTGRES_USER"],
             password=os.environ["POSTGRES_PASSWORD"],

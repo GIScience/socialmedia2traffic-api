@@ -5,3 +5,4 @@ psycopg2
 sqlalchemy
 geoalchemy2
 python-dotenv
+uwsgi

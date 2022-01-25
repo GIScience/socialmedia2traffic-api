@@ -1,3 +1,3 @@
-#!/bin/bash
+#!/usr/bin/env bash
 python ./populate_database.py
-python ./api.py
+uwsgi uwsgi.ini

@@ -14,6 +14,7 @@ psycopg2 = "^2.9"
 SQLAlchemy = "^1.4.29"
 GeoAlchemy2 = "^0.10.2"
 python-dotenv = "^0.19.2"
+uWSGI = "^2.0.20"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"

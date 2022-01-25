@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """SM2T API"""
+import os
 
 from flask import Flask
 from flask_restful import Api, Resource
@@ -15,7 +16,9 @@ import logging
 
 
 app = Flask(__name__)
-api = Api(app)
+app.secret_key = os.environ["SECRET_KEY"]
+
+api = Api(app, prefix="/api/v1")
 
 
 class Traffic(Resource):
@@ -50,4 +53,5 @@ api.add_resource(Traffic, "/traffic/csv")
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    port = os.environ["PORT"]
+    app.run(debug=os.environ.get("DEBUG", False), host="0.0.0.0", port=port)

@@ -4,7 +4,7 @@
 
 import requests
 
-BASE = "http://localhost:5000/"
+BASE = "http://localhost:81/api/v1/"
 
 
 def test_request_with_data():

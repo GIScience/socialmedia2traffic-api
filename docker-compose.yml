@@ -23,12 +23,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
   api:
+    build: .
+    container_name: api
     tty: true
     restart: on-failure
-    build: .
     volumes:
-      - ./src:/app/src
+     # - ./src:/app/src
       - ./data:/data
     ports:
       - "5000:5000"
@@ -36,5 +38,15 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  nginx:
+    build: ./nginx
+    container_name: nginx-flask
+    restart: always
+    ports:
+      - "81:80"
+    depends_on:
+      - api
+
 volumes:
   db-data:

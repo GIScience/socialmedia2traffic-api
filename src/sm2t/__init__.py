@@ -7,4 +7,7 @@ import logging.config
 
 load_dotenv("../.env", verbose=True)
 
-logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
+try:
+    logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
+except KeyError:
+    print("logging could not be initialized.")
