@@ -8,7 +8,7 @@ The traffic speed was modelled using geocoded Twitter data and OpenStreetMap dat
 
 ## Usage
 
-Traffic data can be queried from [https://sm2t.heigit.org/traffic/csv](https://sm2t.heigit.org/traffic/csv) using GET requests by providing a spatial bounding box in geographic coordinates (min_lon, min_lat, max_lon, max_lat).
+Traffic data can be queried from [https://sm2t.heigit.org/api/v1/traffic/csv](https://sm2t.heigit.org/api/v1/traffic/csv) using GET requests by providing a spatial bounding box in geographic coordinates (min_lon, min_lat, max_lon, max_lat).
 
 **Example Query**
 
