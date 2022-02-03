@@ -35,10 +35,11 @@ The first three columns denote **official OSM IDs**, so the respective OSM objec
 
 ## API Setup
 
-The API can be set up using [Docker](https://www.docker.com/):
+Copy the `sample.env` to `.env` and set the envrionment variables. Afterwards, set up the API using [Docker](https://www.docker.com/):
 
 ```
 cd socialmedia2traffic-api
+cp sample.env .env
 docker compose up
 ```
 
