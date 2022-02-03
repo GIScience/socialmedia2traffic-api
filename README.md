@@ -1,6 +1,6 @@
 # SocialMedia2Traffic API
 
-The [SocialMedia2Traffic](https://heigit.org/de/new-mfund-project-start-of-socialmedia2traffic-derivation-of-traffic-information-from-social-media-data-2/) (SM2T) API provides **hourly traffic speed data** for individual OSM road features suitable for integration in [openrouteservice](https://openrouteservice.org).
+The [SocialMedia2Traffic](https://heigit.org/de/new-mfund-project-start-of-socialmedia2traffic-derivation-of-traffic-information-from-social-media-data-2/) (SM2T) API provides **modelled hourly traffic speed data** for individual OSM road features suitable for integration in [openrouteservice](https://openrouteservice.org).
 
 The traffic speed was modelled using geocoded Twitter data and OpenStreetMap data using machine learning and [UBER movement data](https://movement.uber.com/?lang=en-US) as reference.
 
