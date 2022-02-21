@@ -19,10 +19,10 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+       test: ["CMD-SHELL", "pg_isready"]
+       interval: 10s
+       timeout: 5s
+       retries: 5
 
   api:
     build: .
@@ -30,7 +30,6 @@ services:
     tty: true
     restart: on-failure
     volumes:
-     # - ./src:/app/src
       - ./data:/data
     ports:
       - "5000:5000"
@@ -38,21 +37,21 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    healthcheck:
-      test: curl --fail -s http://localhost:5000/ || exit 1
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
+    #healthcheck:
+    #  test: curl --fail -s http://localhost:5000/ || exit 1
+    #  interval: 1m30s
+    #  timeout: 10s
+    #  retries: 3
 
   nginx:
     build: ./nginx
     container_name: nginx-flask
     restart: always
     ports:
-      - "81:80"
+      - "5001:80"
     depends_on:
-      - api:
-          condition: service_healthy
+      - api
+        #condition: service_healthy
 
 volumes:
   db-data:
