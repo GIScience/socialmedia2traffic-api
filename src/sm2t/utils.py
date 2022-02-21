@@ -21,3 +21,15 @@ def parse_bbox(bbox: str):
     c3 = f"s{rounded[3] * -1}" if rounded[3] < 0 else f"n{rounded[3]}"
 
     return coords, f"sm2t-{date}-{c0}_{c1}_{c2}_{c3}.csv"
+
+
+def check_bbox(bbox: list, bbox_max: float):
+    """
+    Check if size of bbox is lower than maximum
+    :param bbox:
+    :return:
+    """
+    if ((bbox[2] - bbox[0]) > bbox_max) or ((bbox[3] - bbox[1]) > bbox_max):
+        return False
+    else:
+        return True

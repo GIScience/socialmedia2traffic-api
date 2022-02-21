@@ -9,7 +9,7 @@ from io import BytesIO
 from flask import send_file
 from flask_restful import reqparse
 
-from sm2t.utils import parse_bbox
+from sm2t.utils import parse_bbox, check_bbox
 from sm2t.database import load_speed_by_bbox, open_connection
 
 import logging
@@ -35,6 +35,14 @@ class Traffic(Resource):
 
         bbox, outfile = parse_bbox(args["bbox"])
 
+        # Check size of bounding box
+        bbox_ok = check_bbox(bbox, float(os.getenv("MAX_BBOX_DEGREE")))
+        if not bbox_ok:
+            return {
+                "success": False,
+                "message": f"Bounding box is too big. The maximum width and height of the bounding box is {os.getenv('MAX_BBOX_DEGREE')} degree.",
+            }
+
         # Query data from database within bounding box
         conn, message = open_connection()
         logging.info(message)
@@ -49,9 +57,22 @@ class Traffic(Resource):
         )
 
 
+class Health(Resource):
+    """Health endpoint"""
+
+    def get(self):
+        """Check if API is ready"""
+        conn, message = open_connection()
+        if conn is False:
+            return {"success": False, "message": "not healthy"}
+        else:
+            return {"success": True, "message": "healthy"}
+
+
 api.add_resource(Traffic, "/traffic/csv")
+api.add_resource(Health, "/health")
 
 
 if __name__ == "__main__":
-    port = os.environ["PORT"]
+    port = 5000
     app.run(debug=os.environ.get("DEBUG", False), host="0.0.0.0", port=port)
