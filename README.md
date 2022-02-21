@@ -1,6 +1,6 @@
 # SocialMedia2Traffic API
 
-The [SocialMedia2Traffic](https://heigit.org/de/new-mfund-project-start-of-socialmedia2traffic-derivation-of-traffic-information-from-social-media-data-2/) (SM2T) API provides **hourly traffic speed data** for individual OSM road features suitable for integration in [openrouteservice](https://openrouteservice.org).
+The [SocialMedia2Traffic](https://heigit.org/de/new-mfund-project-start-of-socialmedia2traffic-derivation-of-traffic-information-from-social-media-data-2/) (SM2T) API provides **modelled hourly traffic speed data** for individual OSM road features suitable for integration in [openrouteservice](https://openrouteservice.org).
 
 The traffic speed was modelled using geocoded Twitter data and OpenStreetMap data using machine learning and [UBER movement data](https://movement.uber.com/?lang=en-US) as reference.
 
@@ -8,7 +8,7 @@ The traffic speed was modelled using geocoded Twitter data and OpenStreetMap dat
 
 ## Usage
 
-Traffic data can be queried from [https://sm2t.heigit.org/traffic/csv](https://sm2t.heigit.org/traffic/csv) using GET requests by providing a spatial bounding box in geographic coordinates (min_lon, min_lat, max_lon, max_lat).
+Traffic data can be queried from [https://sm2t.heigit.org/api/v1/traffic/csv](https://sm2t.heigit.org/api/v1/traffic/csv) using GET requests by providing a spatial bounding box in geographic coordinates (min_lon, min_lat, max_lon, max_lat).
 
 **Example Query**
 
@@ -35,10 +35,11 @@ The first three columns denote **official OSM IDs**, so the respective OSM objec
 
 ## API Setup
 
-The API can be set up using [Docker](https://www.docker.com/):
+Copy the `sample.env` to `.env` and set the envrionment variables. Afterwards, set up the API using [Docker](https://www.docker.com/):
 
 ```
 cd socialmedia2traffic-api
+cp sample.env .env
 docker compose up
 ```
 
