@@ -48,7 +48,7 @@ services:
     container_name: nginx-flask
     restart: always
     ports:
-      - "5001:80"
+      - "${PORT}:80"
     depends_on:
       - api
         #condition: service_healthy
