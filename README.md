@@ -46,7 +46,7 @@ docker compose up
 
 If you encounter problems or bugs, please open an [issue](https://github.com/GIScience/socialmedia2traffic-api/issues). Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Also please make sure to update tests as appropriate.
 
-## Funding
+## Acknowledgements
 
 This project was funded by the [German Federal Ministry for Digital and Transport (BMDV)](https://www.bmvi.de/EN/Home/home.html) in the context of the research initiative [mFUND](https://www.bmvi.de/EN/Topics/Digital-Matters/mFund/mFund.html).
 
