@@ -90,11 +90,12 @@ def load_speed_by_bbox(bbox: str, conn):
     """
     bbox_str = ", ".join([str(x) for x in bbox])
     query = f"""
-        WITH selection AS (SELECT fid
+        WITH selection AS (SELECT fid, osm_way_id, osm_start_node_id, osm_end_node_id
         FROM highways
         WHERE highways.geometry && ST_MakeEnvelope({bbox_str}, 4326))
-        SELECT osm_way_id, osm_start_node_id, osm_end_node_id, hour, speed
+        SELECT selection.osm_way_id, selection.osm_start_node_id, selection.osm_end_node_id, speed.hour_of_day, speed.speed_kph_p85
         FROM speed
+        LEFT OUTER JOIN selection ON (speed.fid = selection.fid)
         WHERE speed.fid IN (SELECT fid FROM selection);
     """
     df = pd.read_sql_query(query, con=conn)
