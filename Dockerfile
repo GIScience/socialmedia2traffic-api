@@ -3,7 +3,7 @@ FROM python:3.8
 RUN apt-get clean \
     && apt-get -y update
 
-RUN apt-get -y --no-install-recommends install python3-dev build-essential
+RUN apt-get -y --no-install-recommends install python3-dev build-essential postgresql postgresql-contrib
 
 RUN pip3 install uwsgi
 
