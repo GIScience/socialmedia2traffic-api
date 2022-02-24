@@ -36,8 +36,12 @@ def check_bbox(bbox: list, bbox_max: float):
     :param bbox:
     :return:
     """
-
-    if ((bbox[2] - bbox[0]) > bbox_max) or ((bbox[3] - bbox[1]) > bbox_max):
+    if (bbox[2] < bbox[0]) or (bbox[3] < bbox[1]):
+        return (
+            False,
+            "Bounding box is invalid. Required format: min_lon,min_lat,max_lon,max_lat. min_lon must be smaller than max_lon, min_lat must be smaller than max_lat.",
+        )
+    elif ((bbox[2] - bbox[0]) > bbox_max) or ((bbox[3] - bbox[1]) > bbox_max):
         return (
             False,
             f"Bounding box is too big. The maximum width and height of the bounding box is {os.getenv('MAX_BBOX_DEGREE')} degree.",
