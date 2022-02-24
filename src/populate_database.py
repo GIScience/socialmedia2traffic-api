@@ -138,7 +138,7 @@ def create_highways_table(engine):
 
         query = """
         CREATE TABLE highways (
-          fid bigint,
+          fid bigint PRIMARY KEY,
           osm_way_id bigint,
           osm_start_node_id bigint,
           osm_end_node_id bigint,
@@ -158,7 +158,7 @@ def create_speed_table(engine):
         CREATE TABLE speed (
           fid bigint,
           hour_of_day int,
-          speed_kph_p85 real
+          speed_kph_p85 int
         );
         """
         con.execute(text(query))
