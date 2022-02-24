@@ -19,103 +19,6 @@ load_dotenv("../.env", verbose=True)
 logger = init_logger("sm2t-api-populate-database")
 
 
-def create_speed_table(conn):
-    """Create tables"""
-    query = """
-    CREATE TABLE IF NOT EXISTS speed (
-      id SERIAL PRIMARY KEY,
-      osm_way_id integer,
-      osm_start_node_id bigint,
-      osm_end_node_id bigint,
-      hour smallint,
-      speed real,
-      fid integer
-    );
-    """
-    execute_query(conn, query)
-
-
-def create_highways_table(conn):
-    """Create tables"""
-    query = """
-    CREATE TABLE IF NOT EXISTS highways (
-      id SERIAL PRIMARY KEY,
-      fid integer,
-      osm_way_id integer,
-      osm_start_node_id bigint,
-      osm_end_node_id bigint,
-      geometry geometry(LINESTRING, 4326)
-    );
-    """
-    execute_query(conn, query)
-
-
-def import_highways(file, conn):
-    """
-    Imports highway geometries into database
-    :param data_dir:
-    :return:
-    """
-    assert Path(file).exists(), f"{file} does not exist"
-    engine = open_engine()
-
-    data = gpd.read_file(file)
-    data = data.rename(
-        columns={
-            "u": "osm_start_node_id",
-            "v": "osm_end_node_id",
-            "osmid": "osm_way_id",
-        }
-    )
-    data = data[
-        ["fid", "osm_way_id", "osm_end_node_id", "osm_start_node_id", "geometry"]
-    ]
-    data.to_postgis(
-        name="highways",
-        con=engine,
-        if_exists="append",
-        index=False,
-        dtype={"geometry": Geometry("LINESTRING", srid="4326")},
-    )
-
-    """
-    PG = f"PG:host={conn.info.host} user={conn.info.user} password={conn.info.password} dbname={conn.info.dbname}"
-    sql = f"SELECT u AS osm_start_node_id, v AS osm_end_node_id, osmid AS osm_way_id, fid FROM {filename}"
-    cmd = [
-        "ogr2ogr",
-        "-f",
-        "PostgreSQL",
-        PG,
-        file,
-        "-nln",
-        "highways",
-        "-lco",
-        "GEOMETRY_NAME=geom",
-        "-sql",
-        sql,
-    ]
-    try:
-        success = subprocess.check_call(cmd)
-    except subprocess.CalledProcessError as error:
-        return cmd, error
-    """
-
-    return None, True
-
-
-def import_speed_data(file, conn):
-    """Import speed data"""
-    assert Path(file).exists(), f"{file} does not exist"
-    docker_file_path = Path("/data") / file.parents[0].stem / file.name
-    import_csv_query = f"""
-    COPY speed(osm_way_id, osm_start_node_id, osm_end_node_id, hour, speed, fid)
-        FROM '{docker_file_path}'
-        DELIMITER ','
-        CSV HEADER;
-    """
-    execute_query(conn, import_csv_query)
-
-
 def import_table(table_file):
     """
     Import table from file to database
@@ -218,6 +121,85 @@ def create_index(table_name, engine):
         con.execute(text(index_query))
 
 
+def create_highways_table(engine):
+    """
+    Create the highways table. If it exists drop it.
+    :param engine:
+    :return:
+    """
+    # Create table for highways
+    with engine.connect() as con:
+        query = "DROP TABLE IF EXISTS highways"
+        con.execute(text(query))
+
+        query = """
+        CREATE TABLE highways (
+          fid bigint,
+          osm_way_id bigint,
+          osm_start_node_id bigint,
+          osm_end_node_id bigint,
+          geometry geometry(LINESTRING, 4326)
+        );"""
+        con.execute(text(query))
+
+
+def create_speed_table(engine):
+    """Create tables"""
+
+    with engine.connect() as con:
+        query = "DROP TABLE IF EXISTS speed"
+        con.execute(text(query))
+
+        query = """
+        CREATE TABLE speed (
+          fid bigint,
+          hour_of_day int,
+          speed_kph_p85 real
+        );
+        """
+        con.execute(text(query))
+
+
+def insert_highways(table_name, engine):
+    """
+    insert_into_table
+    :param engine:
+    :return:
+    """
+    with engine.connect() as con:
+        query = (
+            f"INSERT INTO highways(fid, osm_way_id, osm_start_node_id, osm_end_node_id, geometry) "
+            f"SELECT fid, osm_way_id, osm_start_node_id, osm_end_node_id, geometry FROM {table_name};"
+        )
+        con.execute(text(query))
+
+
+def insert_speed(table_name, engine):
+    """
+    insert_into_table
+    :param engine:
+    :return:
+    """
+    with engine.connect() as con:
+        query = (
+            f"INSERT INTO speed(fid, hour_of_day, speed_kph_p85) "
+            f"SELECT fid, hour_of_day, speed_kph_p85 FROM {table_name};"
+        )
+        con.execute(text(query))
+
+
+def drop_table(table_name, engine):
+    """
+    Drops the table
+    :param table_name:
+    :param engine:
+    :return:
+    """
+    with engine.connect() as con:
+        query = f"DROP TABLE IF EXISTS {table_name};"
+        con.execute(text(query))
+
+
 def populate_database(input_dir: str):
     """
     Populate database with edges and predicted speed data from files
@@ -225,9 +207,10 @@ def populate_database(input_dir: str):
     The name of the file will be the table name.
     :return:
     """
-
     input_dir = Path(input_dir)
     engine = get_engine_from_environment()
+
+    create_highways_table(engine)
 
     # Import edges tables
     edges_tables = find_tables(engine, "edges_*")
@@ -238,15 +221,20 @@ def populate_database(input_dir: str):
             continue
         logger.info(f"Importing {edges_file}...")
         import_table(edges_file)
+        insert_highways(edges_file.stem, engine)
+        drop_table(edges_file.stem, engine)
 
     # Import speed tables
+    create_speed_table(engine)
     speed_files = input_dir.glob("speed_predicted_*.sql")
     for speed_file in speed_files:
         logger.info(f"Importing {speed_file}...")
         import_table(speed_file)
+        insert_speed(speed_file.stem, engine)
+        drop_table(speed_file.stem, engine)
 
     # Create views for edges and speed data of all cities
-    create_views(engine)
+    # create_views(engine)
     create_index("highways", engine)
 
 
