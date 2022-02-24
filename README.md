@@ -20,7 +20,7 @@ Traffic data can be queried from [https://sm2t.heigit.org/download/traffic/csv](
 **Example Query**
 
 ```
-curl https://sm2t.heigit.org/download/traffic/csv?bbox=13.3472,52.52,13.4117,42.5304
+curl https://sm2t.heigit.org/download/traffic/csv?bbox=13.3472,52.52,13.4117,52.5304
 ```
 
 The response is a **CSV file** containing **hourly traffic speed in km/h** for individual OSM highway segments, e.g.
