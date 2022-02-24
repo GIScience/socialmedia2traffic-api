@@ -119,9 +119,9 @@ def create_index(engine):
             "CREATE INDEX highways_geometry_idx ON highways USING GIST(geometry);"
         )
         con.execute(text(index_query))
-        index_query = "CREATE INDEX highways_fid_idx ON highways USING GIST(fid);"
+        index_query = "CREATE INDEX highways_fid_idx ON highways(fid);"
         con.execute(text(index_query))
-        index_query = "CREATE INDEX speed_fid_idx ON speed USING GIST(fid);"
+        index_query = "CREATE INDEX speed_fid_idx ON speed(fid);"
         con.execute(text(index_query))
 
 
