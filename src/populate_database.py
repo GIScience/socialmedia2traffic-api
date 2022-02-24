@@ -108,7 +108,7 @@ def create_views(engine):
             con.execute(text(query))
 
 
-def create_index(table_name, engine):
+def create_index(engine):
     """
     Creates spatial index for table
     :param table_name:
@@ -116,8 +116,12 @@ def create_index(table_name, engine):
     """
     with engine.connect() as con:
         index_query = (
-            f"CREATE INDEX {table_name}_idx ON {table_name} USING GIST(geometry);"
+            "CREATE INDEX highways_geometry_idx ON highways USING GIST(geometry);"
         )
+        con.execute(text(index_query))
+        index_query = "CREATE INDEX highways_fid_idx ON highways USING GIST(fid);"
+        con.execute(text(index_query))
+        index_query = "CREATE INDEX speed_fid_idx ON speed USING GIST(fid);"
         con.execute(text(index_query))
 
 
@@ -235,7 +239,7 @@ def populate_database(input_dir: str):
 
     # Create views for edges and speed data of all cities
     # create_views(engine)
-    create_index("highways", engine)
+    create_index(engine)
 
 
 if __name__ == "__main__":
