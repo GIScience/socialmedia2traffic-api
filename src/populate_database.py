@@ -145,7 +145,7 @@ def create_highways_table(engine):
 
         query = """
         CREATE TABLE highways (
-          fid bigint PRIMARY KEY,
+          fid bigint,
           osm_way_id bigint,
           osm_start_node_id bigint,
           osm_end_node_id bigint,
