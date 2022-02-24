@@ -10,11 +10,12 @@ The traffic speed was modelled using geocoded Twitter data and OpenStreetMap dat
 - **Nairobi:** [36.663475,-1.4421585,37.103702,-1.157910]
 - **Seattle:** [-123.503379,46.728870,-120.905265,48.411334]
 
+**Note:** Since this is a rather a demonstrator and not a productive system, the size of the bounding box per request is limited to a width and height of 0.2 degree at the moment.
+
 ## Usage
 
 Traffic data can be queried from [https://sm2t.heigit.org/download/traffic/csv](https://sm2t.heigit.org/download/traffic/csv) using GET requests by providing a spatial bounding box in geographic coordinates (min_lon, min_lat, max_lon, max_lat).
 
-**Note:** Since this is a rather a demonstrator and not a productive system, the sice of the bounding box per request is limited to a width and height of 0.5 degree at the moment.
 
 **Example Query**
 
