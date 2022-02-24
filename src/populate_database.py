@@ -115,6 +115,13 @@ def create_index(engine):
     :return:
     """
     with engine.connect() as con:
+        query = "DROP INDEX IF EXISTS highways_geometry_idx;"
+        con.execute(text(query))
+        query = "DROP INDEX IF EXISTS highways_fid_idx;"
+        con.execute(text(query))
+        query = "DROP INDEX IF EXISTS speed_fid_idx;"
+        con.execute(text(query))
+
         index_query = (
             "CREATE INDEX highways_geometry_idx ON highways USING GIST(geometry);"
         )
