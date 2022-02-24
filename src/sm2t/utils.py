@@ -14,6 +14,11 @@ def parse_bbox(bbox: str):
     :return: List of coordinates, filename with bounding box
     """
     coords = [float(x) for x in bbox.split(",")]
+    if len(coords) < 4:
+        return (
+            False,
+            "Bounding box is invalid. Required format: min_lon,min_lat,max_lon,max_lat",
+        )
     rounded = [int(round(x * 1e6, 0)) for x in coords]
     date = datetime.date.today().strftime("%Y%m%d")
 
@@ -31,10 +36,14 @@ def check_bbox(bbox: list, bbox_max: float):
     :param bbox:
     :return:
     """
+
     if ((bbox[2] - bbox[0]) > bbox_max) or ((bbox[3] - bbox[1]) > bbox_max):
-        return False
+        return (
+            False,
+            f"Bounding box is too big. The maximum width and height of the bounding box is {os.getenv('MAX_BBOX_DEGREE')} degree.",
+        )
     else:
-        return True
+        return True, None
 
 
 def init_logger(name, log_file=None):

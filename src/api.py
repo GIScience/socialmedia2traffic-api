@@ -33,14 +33,19 @@ class Traffic(Resource):
         parser.add_argument("bbox", type=str, help="Bounding box", required=True)
         args = parser.parse_args()
 
-        bbox, outfile = parse_bbox(args["bbox"])
-
-        # Check size of bounding box
-        bbox_ok = check_bbox(bbox, float(os.getenv("MAX_BBOX_DEGREE")))
-        if not bbox_ok:
+        bbox, outfile_message = parse_bbox(args["bbox"])
+        if bbox is False:
             return {
                 "success": False,
-                "message": f"Bounding box is too big. The maximum width and height of the bounding box is {os.getenv('MAX_BBOX_DEGREE')} degree.",
+                "message": outfile_message,
+            }
+
+        # Check size of bounding box
+        bbox_ok, message = check_bbox(bbox, float(os.getenv("MAX_BBOX_DEGREE")))
+        if not bbox_ok:
+            return {
+                "success": str(bbox_ok),
+                "message": message,
             }
 
         # Query data from database within bounding box
@@ -53,7 +58,7 @@ class Traffic(Resource):
         return send_file(
             response_stream,
             mimetype="text/csv",
-            download_name=outfile,
+            download_name=outfile_message,
         )
 
 
