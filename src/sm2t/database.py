@@ -111,7 +111,7 @@ def load_speed_by_bbox(bbox: str, conn):
     bbox_str = ", ".join([str(x) for x in bbox])
     query = f"""
         SELECT fid, osm_way_id, osm_start_node_id, osm_end_node_id, hour_of_day, speed_kph_p85 FROM highways
-         WHERE highways.geometry && ST_MakeEnvelope({bbox_str}, 4326));
+         WHERE highways.geometry && ST_MakeEnvelope({bbox_str}, 4326);
     """
     df = pd.read_sql_query(query, con=conn)
     return df
