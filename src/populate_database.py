@@ -149,8 +149,10 @@ def create_highways_table(engine):
           osm_way_id bigint,
           osm_start_node_id bigint,
           osm_end_node_id bigint,
+          hour_of_day int,
+          speed_kph_p85 int,
           geometry geometry(LINESTRING, 4326),
-          CONSTRAINT fid_pk PRIMARY KEY (fid)
+          CONSTRAINT fid_pk PRIMARY KEY (fid, hour_of_day)
         );"""
         con.execute(text(query))
 
@@ -198,8 +200,8 @@ def insert_highways(table_name, engine):
     """
     with engine.connect() as con:
         query = (
-            f"INSERT INTO highways(fid, osm_way_id, osm_start_node_id, osm_end_node_id, geometry) "
-            f"SELECT fid, osm_way_id, osm_start_node_id, osm_end_node_id, geometry FROM {table_name};"
+            f"INSERT INTO highways(fid, osm_way_id, osm_start_node_id, osm_end_node_id, hour_of_day, speed_kph_p85, geometry) "
+            f"SELECT fid, osm_way_id, osm_start_node_id, osm_end_node_id, hour_of_day, speed_kph_p85, geometry FROM {table_name};"
         )
         con.execute(text(query))
 
@@ -227,6 +229,26 @@ def drop_table(table_name, engine):
     """
     with engine.connect() as con:
         query = f"DROP TABLE IF EXISTS {table_name};"
+        con.execute(text(query))
+
+
+def join_tables(table_highways, table_speed, table_joined, engine):
+    """
+    Join two tables
+    :param table1:
+    :type table1:
+    :param table2:
+    :type table2:
+    :return:
+    :rtype:
+    """
+    with engine.connect() as con:
+        query = (
+            f"CREATE TABLE {table_joined} AS SELECT {table_highways}.osm_way_id, {table_highways}.osm_start_node_id, "
+            f"{table_highways}.osm_end_node_id, {table_speed}.hour_of_day, {table_speed}.speed_kph_p85, {table_highways}.geometry"
+            f"FROM {table_speed} "
+            f"LEFT JOIN {table_highways} ON ({table_speed}.fid = {table_highways}.fid);"
+        )
         con.execute(text(query))
 
 
@@ -263,14 +285,22 @@ def populate_database(input_dir: str):
         logger.info(f"Importing {edges_file}...")
         import_table(edges_file)
         edit_fid(edges_file.stem, engine, fid_offset)
-        insert_highways(edges_file.stem, engine)
-        drop_table(edges_file.stem, engine)
 
         logger.info(f"Importing {speed_file}...")
         import_table(speed_file)
         edit_fid(speed_file.stem, engine, fid_offset)
-        insert_speed(speed_file.stem, engine)
+
+        # Join highways and speed
+        join_tables(
+            edges_file.stem, speed_file.stem, f"highways_speed_{city_name}", engine
+        )
+
+        insert_highways(f"highways_speed_{city_name}", engine)
+
+        drop_table(edges_file.stem, engine)
         drop_table(speed_file.stem, engine)
+
+        # insert_speed(speed_file.stem, engine)
 
     # Create views for edges and speed data of all cities
     create_index(engine)
