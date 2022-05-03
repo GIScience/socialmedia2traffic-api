@@ -244,11 +244,12 @@ def join_tables(table_highways, table_speed, table_joined, engine):
     """
     with engine.connect() as con:
         query = f"""
-            CREATE TABLE {table_joined} AS SELECT {table_highways}.osm_way_id, {table_highways}.osm_start_node_id,
+            CREATE TABLE {table_joined} AS SELECT {table_highways}.fid, {table_highways}.osm_way_id, {table_highways}.osm_start_node_id,
             {table_highways}.osm_end_node_id, {table_speed}.hour_of_day, {table_speed}.speed_kph_p85, {table_highways}.geometry
-            FROM {table_speed}
+             FROM {table_speed}
             LEFT OUTER JOIN {table_highways} ON ({table_speed}.fid = {table_highways}.fid);
             """
+        logger.info(query)
         con.execute(text(query))
 
 
