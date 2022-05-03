@@ -145,7 +145,7 @@ def create_highways_table(engine):
 
         query = """
         CREATE TABLE highways (
-          fid bigint,
+          fid bigint CONSTRAINT fid_pk PRIMARY KEY,
           osm_way_id bigint,
           osm_start_node_id bigint,
           osm_end_node_id bigint,
@@ -168,6 +168,21 @@ def create_speed_table(engine):
           speed_kph_p85 int
         );
         """
+        con.execute(text(query))
+
+
+def edit_fid(table_name, engine, fid_offset):
+    """
+    Offset fid of the table so that they are unique across cities
+    :param table_name:
+    :type table_name:
+    :param engine:
+    :type engine:
+    :return:
+    :rtype:
+    """
+    with engine.connect() as con:
+        query = f"UPDATE {table_name} SET fid = fid + {fid_offset};"
         con.execute(text(query))
 
 
@@ -223,29 +238,36 @@ def populate_database(input_dir: str):
 
     create_highways_table(engine)
 
-    # Import edges tables
-    edges_tables = find_tables(engine, "edges_*")
-    edges_files = input_dir.glob("edges_*.sql")
-    for edges_file in edges_files:
-        if edges_file.stem in edges_tables:
-            logger.info(f"Table {edges_file.stem} already exists. Skipped.")
+    # edges_tables = find_tables(engine, "edges_*")
+    # speed_tables = find_tables(engine, "speed_predicted_*")
+
+    # Offsets
+    edges_files = list(input_dir.glob("edges_*.sql"))
+    for i, edges_file in enumerate(edges_files):
+
+        city_name = edges_file.stem.split("_")[1]
+        speed_file = list(input_dir.glob(f"speed_predicted_{city_name}.sql"))
+        if len(speed_file) != 1:
+            logger.warning(f"speed_predicted_{city_name}.sql not found.")
             continue
+        else:
+            speed_file = speed_file[0]
+
+        fid_offset = int(i * 10e10)
+
         logger.info(f"Importing {edges_file}...")
         import_table(edges_file)
+        edit_fid(edges_file.stem, engine, fid_offset)
         insert_highways(edges_file.stem, engine)
         drop_table(edges_file.stem, engine)
 
-    # Import speed tables
-    create_speed_table(engine)
-    speed_files = input_dir.glob("speed_predicted_*.sql")
-    for speed_file in speed_files:
         logger.info(f"Importing {speed_file}...")
         import_table(speed_file)
+        edit_fid(speed_file.stem, engine, fid_offset)
         insert_speed(speed_file.stem, engine)
         drop_table(speed_file.stem, engine)
 
     # Create views for edges and speed data of all cities
-    # create_views(engine)
     create_index(engine)
 
 
