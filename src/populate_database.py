@@ -300,6 +300,7 @@ def populate_database(input_dir: str):
 
         drop_table(edges_file.stem, engine)
         drop_table(speed_file.stem, engine)
+        drop_table(f"highways_speed_{city_name}", engine)
 
         # insert_speed(speed_file.stem, engine)
 
