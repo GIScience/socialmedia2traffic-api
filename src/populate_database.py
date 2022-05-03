@@ -238,6 +238,7 @@ def populate_database(input_dir: str):
     engine = get_engine_from_environment()
 
     create_highways_table(engine)
+    create_speed_table(engine)
 
     # edges_tables = find_tables(engine, "edges_*")
     # speed_tables = find_tables(engine, "speed_predicted_*")
