@@ -82,7 +82,7 @@ def load_highways(bbox: tuple, conn):
     return highways
 
 
-def load_speed_by_bbox(bbox: str, conn):
+def load_speed_by_bbox_old(bbox: str, conn):
     """Load speed data of specified bounding box
     :param bbox: Bounding box (min_lon, min_lat, max_lon, max_lat)
     :param conn: psycopg2.connection object
@@ -97,6 +97,22 @@ def load_speed_by_bbox(bbox: str, conn):
         FROM speed
         LEFT OUTER JOIN selection ON (speed.fid = selection.fid)
         WHERE speed.fid IN (SELECT fid FROM selection);
+    """
+    df = pd.read_sql_query(query, con=conn)
+    return df
+
+
+def load_speed_by_bbox(bbox: str, conn):
+    """Load speed data of specified bounding box
+    :param bbox: Bounding box (min_lon, min_lat, max_lon, max_lat)
+    :param conn: psycopg2.connection object
+    :return: pandas.DataFrame
+    """
+    bbox_str = ", ".join([str(x) for x in bbox])
+    query = f"""
+        SELECT fid, osm_way_id, osm_start_node_id, osm_end_node_id, hour_of_day, speed_kph_p85
+        FROM highways
+        WHERE highways.geometry && ST_MakeEnvelope({bbox_str}, 4326))
     """
     df = pd.read_sql_query(query, con=conn)
     return df
