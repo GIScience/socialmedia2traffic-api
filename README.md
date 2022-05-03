@@ -2,7 +2,7 @@
 
 The [SocialMedia2Traffic](https://heigit.org/de/new-mfund-project-start-of-socialmedia2traffic-derivation-of-traffic-information-from-social-media-data-2/) (SM2T) API provides **modelled hourly traffic speed data** for individual OSM road features suitable for integration in [openrouteservice](https://openrouteservice.org).
 
-The traffic speed was modelled using geocoded Twitter data and OpenStreetMap data using machine learning and [UBER movement data](https://movement.uber.com/?lang=en-US) as reference.
+The traffic speed was modelled using geocoded Twitter data and OpenStreetMap data using machine learning and [UBER movement data](https://movement.uber.com/?lang=en-US) as reference which are licensed under [CC BY-NC 3.0 US](https://creativecommons.org/licenses/by-nc/3.0/us/)
 
 **Currently available cities** incl. bounding box:
 
@@ -20,7 +20,7 @@ Traffic data can be queried from [https://sm2t.heigit.org/download/traffic/csv](
 **Example Query**
 
 ```
-curl http://sm2t.heigit.org/download/traffic/csv?bbox=13.3472,52.499,13.4117,42.5304
+curl https://sm2t.heigit.org/download/traffic/csv?bbox=13.3472,52.52,13.4117,52.5304
 ```
 
 The response is a **CSV file** containing **hourly traffic speed in km/h** for individual OSM highway segments, e.g.
@@ -58,6 +58,8 @@ If you encounter problems or bugs, please open an [issue](https://github.com/GIS
 ## Acknowledgements
 
 This project was funded by the [German Federal Ministry for Digital and Transport (BMDV)](https://www.bmvi.de/EN/Home/home.html) in the context of the research initiative [mFUND](https://www.bmvi.de/EN/Topics/Digital-Matters/mFund/mFund.html).
+
+Speed Data was retrieved from Uber Movement, (c) 2022 Uber Technologies, Inc., https://movement.uber.com. For the speed data by Uber [additional data attribution](https://movement.uber.com/attribution?lang=en-US ) applies.
 
 Project term: 02/2021 - 01/2021
 
