@@ -145,11 +145,12 @@ def create_highways_table(engine):
 
         query = """
         CREATE TABLE highways (
-          fid bigint CONSTRAINT fid_pk PRIMARY KEY,
+          fid bigint,
           osm_way_id bigint,
           osm_start_node_id bigint,
           osm_end_node_id bigint,
           geometry geometry(LINESTRING, 4326)
+          CONSTRAINT fid_pk PRIMARY KEY (fid)
         );"""
         con.execute(text(query))
 
@@ -166,7 +167,7 @@ def create_speed_table(engine):
           fid bigint,
           hour_of_day int,
           speed_kph_p85 int
-          PRIMARY KEY(fid, hour_of_day)
+          CONSTRAINT fid_hour_pk PRIMARY KEY (fid, hour_of_day)
         );
         """
         con.execute(text(query))
