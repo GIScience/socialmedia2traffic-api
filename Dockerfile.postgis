@@ -1,0 +1,8 @@
+FROM postgis/postgis:13-master
+
+# Create non-root user
+RUN deluser postgres
+RUN adduser --system --uid 1001  postgres
+
+USER postgres
+

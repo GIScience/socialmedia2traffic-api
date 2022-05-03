@@ -3,12 +3,15 @@ version: '3.1'
 services:
 
   db:
-    image: postgis/postgis
+    image: postgis:0.1.0
+    build:
+        context: .
+        dockerfile: ./Dockerfile.postgis
     restart: always
     container_name: db
-    user: ${POSTGRES_USER}
+    user: "1001:1001"# ${POSTGRES_USER}
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - /mnt/data/postgres-data:/var/lib/postgresql/data
       - ${HOST_DATA_DIR}:/data
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
@@ -24,13 +27,14 @@ services:
        timeout: 5s
        retries: 5
 
+
   api:
     build: .
     container_name: api
     tty: true
     restart: on-failure
     volumes:
-      - ./data:/data
+      - ${HOST_DATA_DIR}:/data 
     ports:
       - "5000:5000"
     env_file: .env
@@ -48,10 +52,15 @@ services:
     container_name: nginx-flask
     restart: always
     ports:
-      - "${PORT}:80"
+     - "${PORT}:80"
     depends_on:
       - api
-        #condition: service_healthy
+ #       condition: service_healthy
 
-volumes:
-  db-data:
+#volumes:
+#  db-data: 
+#    driver: local 
+#    driver_opts:
+#      type: 'none'
+#      o: 'bind'
+#      device: /mnt/sm2t-api/db-data

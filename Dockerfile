@@ -5,19 +5,22 @@ RUN apt-get clean \
 
 RUN apt-get -y --no-install-recommends install python3-dev build-essential postgresql postgresql-contrib
 
+# Create non-root user
+RUN adduser --system --uid 1001  api 
+
+USER api
+# RUN chown -R api /app
+WORKDIR /home/api
+
+# make poetry binaries available to the docker container user
+ENV PATH=$PATH:/home/api/.local/bin
+
+COPY ["requirements.txt", ".env", "/home/api/"]
+RUN pip install --no-cache-dir -r requirements.txt
 RUN pip3 install uwsgi
 
-WORKDIR /app
+COPY ./src /home/api/src
 
-COPY ["requirements.txt", ".env", "./"]
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Create non-root user
-RUN addgroup --system app && adduser --system --group  api
-USER api
-
-COPY ./src /app/src
-
-WORKDIR /app/src
+WORKDIR /home/api/src
 
 ENTRYPOINT ["./entrypoint.sh"]
