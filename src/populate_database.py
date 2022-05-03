@@ -183,8 +183,9 @@ def edit_fid(table_name, engine, fid_offset):
     :return:
     :rtype:
     """
+    logger.info(f"Editing fid: {str(int(fid_offset))}")
     with engine.connect() as con:
-        query = f"UPDATE {table_name} SET fid = fid + {fid_offset};"
+        query = f"UPDATE {table_name} SET fid = fid + {str(int(fid_offset))};"
         con.execute(text(query))
 
 
@@ -262,13 +263,13 @@ def populate_database(input_dir: str):
         import_table(edges_file)
         edit_fid(edges_file.stem, engine, fid_offset)
         insert_highways(edges_file.stem, engine)
-        drop_table(edges_file.stem, engine)
+        # drop_table(edges_file.stem, engine)
 
         logger.info(f"Importing {speed_file}...")
         import_table(speed_file)
         edit_fid(speed_file.stem, engine, fid_offset)
         insert_speed(speed_file.stem, engine)
-        drop_table(speed_file.stem, engine)
+        # drop_table(speed_file.stem, engine)
 
     # Create views for edges and speed data of all cities
     create_index(engine)
