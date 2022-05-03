@@ -149,7 +149,7 @@ def create_highways_table(engine):
           osm_way_id bigint,
           osm_start_node_id bigint,
           osm_end_node_id bigint,
-          geometry geometry(LINESTRING, 4326)
+          geometry geometry(LINESTRING, 4326),
           CONSTRAINT fid_pk PRIMARY KEY (fid)
         );"""
         con.execute(text(query))
@@ -166,7 +166,7 @@ def create_speed_table(engine):
         CREATE TABLE speed (
           fid bigint,
           hour_of_day int,
-          speed_kph_p85 int
+          speed_kph_p85 int,
           CONSTRAINT fid_hour_pk PRIMARY KEY (fid, hour_of_day)
         );
         """
