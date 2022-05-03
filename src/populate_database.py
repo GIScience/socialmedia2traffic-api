@@ -166,6 +166,7 @@ def create_speed_table(engine):
           fid bigint,
           hour_of_day int,
           speed_kph_p85 int
+          PRIMARY KEY(bigint, hour_of_day)
         );
         """
         con.execute(text(query))
