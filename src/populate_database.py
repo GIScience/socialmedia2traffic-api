@@ -247,8 +247,20 @@ def join_tables(table_highways, table_speed, table_joined, engine):
             CREATE TABLE {table_joined} AS SELECT {table_highways}.fid, {table_highways}.osm_way_id, {table_highways}.osm_start_node_id,
             {table_highways}.osm_end_node_id, {table_speed}.hour_of_day, {table_speed}.speed_kph_p85, {table_highways}.geometry
              FROM {table_speed}
-            LEFT OUTER JOIN {table_highways} ON ({table_speed}.fid = {table_highways}.fid);
+            LEFT JOIN {table_highways} ON ({table_speed}.fid = {table_highways}.fid);
             """
+        logger.info(query)
+        con.execute(text(query))
+
+
+def delete_highway_pedestrian(table_name, engine):
+    """
+    Filter edges by highway tag. Delete all edges with highway=path
+    :return:
+    :rtype:
+    """
+    with engine.connect() as con:
+        query = "DELETE FROM table_name WHERE highway = 'pedestrian'"
         logger.info(query)
         con.execute(text(query))
 
@@ -284,22 +296,25 @@ def populate_database(input_dir: str):
         fid_offset = int(i * 10e10)
 
         logger.info(f"Importing {edges_file}...")
+        edges_table_name = edges_file.stem
         import_table(edges_file)
-        edit_fid(edges_file.stem, engine, fid_offset)
+        edit_fid(edges_table_name, engine, fid_offset)
+        delete_highway_pedestrian(edges_table_name, engine)
 
         logger.info(f"Importing {speed_file}...")
+        speed_table_name = speed_file.stem
         import_table(speed_file)
-        edit_fid(speed_file.stem, engine, fid_offset)
+        edit_fid(speed_table_name, engine, fid_offset)
 
         # Join highways and speed
         join_tables(
-            edges_file.stem, speed_file.stem, f"highways_speed_{city_name}", engine
+            edges_table_name, speed_table_name, f"highways_speed_{city_name}", engine
         )
 
         insert_highways(f"highways_speed_{city_name}", engine)
 
-        drop_table(edges_file.stem, engine)
-        drop_table(speed_file.stem, engine)
+        drop_table(edges_table_name, engine)
+        drop_table(speed_table_name, engine)
         drop_table(f"highways_speed_{city_name}", engine)
 
         # insert_speed(speed_file.stem, engine)
