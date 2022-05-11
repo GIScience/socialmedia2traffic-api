@@ -185,7 +185,6 @@ def edit_fid(table_name, engine, fid_offset):
     :return:
     :rtype:
     """
-    logger.info(f"Editing fid: {str(int(fid_offset))}")
     with engine.connect() as con:
         logger.info(f"UPDATE {table_name} SET fid = fid + {int(fid_offset)};")
         query = f"UPDATE {table_name} SET fid = fid + {str(int(fid_offset))};"
@@ -247,7 +246,7 @@ def join_tables(table_highways, table_speed, table_joined, engine):
             CREATE TABLE {table_joined} AS SELECT {table_highways}.fid, {table_highways}.osm_way_id, {table_highways}.osm_start_node_id,
             {table_highways}.osm_end_node_id, {table_speed}.hour_of_day, {table_speed}.speed_kph_p85, {table_highways}.geometry
              FROM {table_speed}
-            LEFT JOIN {table_highways} ON ({table_speed}.fid = {table_highways}.fid);
+            LEFT OUTER JOIN {table_highways} ON ({table_speed}.fid = {table_highways}.fid);
             """
         logger.info(query)
         con.execute(text(query))
@@ -298,12 +297,15 @@ def populate_database(input_dir: str):
         logger.info(f"Importing {edges_file}...")
         edges_table_name = edges_file.stem
         import_table(edges_file)
+        logger.info(f"Editing fid: {str(int(fid_offset))}")
         edit_fid(edges_table_name, engine, fid_offset)
+        logger.info(f"Deleting rows in {edges_table_name}...")
         delete_highway_pedestrian(edges_table_name, engine)
 
         logger.info(f"Importing {speed_file}...")
         speed_table_name = speed_file.stem
         import_table(speed_file)
+        logger.info(f"Editing fid: {str(int(fid_offset))}")
         edit_fid(speed_table_name, engine, fid_offset)
 
         # Join highways and speed
