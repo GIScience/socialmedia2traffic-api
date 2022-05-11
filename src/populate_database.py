@@ -260,7 +260,7 @@ def delete_highway_pedestrian(table_name, engine):
     :rtype:
     """
     with engine.connect() as con:
-        query = "DELETE FROM table_name WHERE highway = 'pedestrian'"
+        query = f"DELETE FROM {table_name} WHERE highway = 'pedestrian';"
         logger.info(query)
         con.execute(text(query))
 
