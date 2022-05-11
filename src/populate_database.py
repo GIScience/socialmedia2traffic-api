@@ -249,7 +249,7 @@ def join_tables(table_highways, table_speed, table_joined, engine):
             LEFT OUTER JOIN {table_highways} ON ({table_speed}.fid = {table_highways}.fid);
             """
         con.execute(text(query))
-        query = "DELETE FROM {table_joined} WHERE fid is NULL;"
+        query = f"DELETE FROM {table_joined} WHERE fid is NULL;"
         con.execute(text(query))
 
 
